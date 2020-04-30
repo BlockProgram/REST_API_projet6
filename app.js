@@ -1,6 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const User = require("./models/user");
+const userRoutes = require("./routes/user");
+
 const app = express();
 
 mongoose
@@ -26,15 +29,6 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 
-app.post("/api/auth/signup", (req, res, next) => {
-  console.log(req.body);
-  res.status(201).json({ message: "Objet créé" });
-  next();
-});
-
-app.post("/api/auth/login", (req, res, next) => {
-  console.log(req.body);
-  res.status(201).json({ message: "Objet créé" });
-});
+app.use("/api/auth", userRoutes);
 
 module.exports = app;
