@@ -7,9 +7,10 @@ const sauceRoutes = require("./routes/sauce");
 
 const app = express();
 
+// MongoDB, password protected
 mongoose
   .connect(
-    "mongodb+srv://projet6:openclassrooms@cluster0-czcy0.mongodb.net/piquante?retryWrites=true&w=majority",
+    "mongodb+srv://projet6:<password>@cluster0-czcy0.mongodb.net/piquante?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))

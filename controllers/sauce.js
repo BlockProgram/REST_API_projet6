@@ -5,6 +5,8 @@ exports.createSauce = (req, res, next) => {
   delete sauceObject._id;
   const sauce = new Sauce({
     ...sauceObject,
+    likes: 0,
+    dislikes: 0,
     image: `${req.protocol}://localhost:4200/../backend/images/${req.file.filename}`,
   });
   sauce
