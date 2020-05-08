@@ -5,9 +5,13 @@ exports.createSauce = (req, res, next) => {
   delete sauceObject._id;
   const sauce = new Sauce({
     ...sauceObject,
+    imageUrl: `${req.protocol}://${req.get("host")}/images/${
+      req.file.filename
+    }`,
     likes: 0,
     dislikes: 0,
-    image: `${req.protocol}://localhost:4200/../backend/images/${req.file.filename}`,
+    usersLiked: [],
+    usersDisliked: [],
   });
   sauce
     .save()
@@ -16,6 +20,35 @@ exports.createSauce = (req, res, next) => {
 };
 
 exports.likeSauce = (req, res, next) => {
+  // SEE BELOW
+  // https://docs.mongodb.com/manual/reference/operator/update/pull/#up._S_pull
+  Sauce.findOne({ _id: req.params.id })
+    .then((sauce) => {
+      let likeUsers = Array.from(sauce.usersLiked);
+      let dislikeUsers = Array.from(sauce.usersDisliked);
+      if ((req.body.like = 1)) {
+        likeUsers.push(req.body.userId);
+        Sauce.updateOne(
+          { _id: req.params.id },
+          {
+            $inc: { likes: 1 },
+            usersLiked: likeUsers,
+          }
+        )
+          .then(() => res.status(200).json({ message: "Like appliqué " }))
+          .catch((error) => res.status(400).json({ error }));
+      } else if ((req.body.like = -1)) {
+        dislikeUsers.push(req.body.userId);
+        Sauce.updateOne(
+          { _id: req.params.id },
+          { $inc: { dislikes: 1 }, usersDisliked: dislikeUsers }
+        )
+          .then(() => res.status(200).json({ message: "Dislike appliqué" }))
+          .catch((error) => res.status(400).json({ error }));
+      }
+    })
+    .catch((error) => res.status(400).json({ error }));
+
   //   Définit le statut "j'aime" pour userID fourni. Si j'aime = 1, l'utilisateur aime la sauce.
   // Si j'aime = 0, l'utilisateur annule ce qu'il aime ou ce qu'il n'aime pas. Si j'aime = -1,
   // l'utilisateur n'aime pas la sauce. L'identifiant de l'utilisateur doit être ajouté
@@ -40,7 +73,7 @@ exports.modifySauce = (req, res, next) => {
   const sauceObject = req.file
     ? {
         ...JSON.parse(req.body.sauce),
-        image: `${req.protocol}://${req.get("host")}/images/${
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${
           req.file.filename
         }`,
       }
