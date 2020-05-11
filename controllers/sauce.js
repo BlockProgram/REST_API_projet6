@@ -1,4 +1,5 @@
 const Sauce = require("../models/sauce");
+const fs = require("fs");
 
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
@@ -30,7 +31,7 @@ exports.likeSauce = (req, res, next) => {
     )
       .then(() => res.status(200).json({ message: "User liked ajouté " }))
       .catch((error) => res.status(400).json({ error }));
-
+    setTimeout(updateCounts, 500);
     // User dislikes
   } else if (req.body.like === -1) {
     Sauce.updateOne(
@@ -41,7 +42,7 @@ exports.likeSauce = (req, res, next) => {
     )
       .then(() => res.status(200).json({ message: "User disliked ajouté" }))
       .catch((error) => res.status(400).json({ error }));
-
+    setTimeout(updateCounts, 500);
     // User removes like/dislike
   } else if (req.body.like === 0) {
     Sauce.updateOne(
@@ -52,23 +53,26 @@ exports.likeSauce = (req, res, next) => {
     )
       .then(() => res.status(200).json({ message: "Vote modifié" }))
       .catch((error) => res.status(400).json({ error }));
+    setTimeout(updateCounts, 500);
   }
 
   //Update likes/dislikes numbers
-  Sauce.findOne({ _id: req.params.id }).then((sauce) => {
-    console.log(`likes: ${sauce.usersLiked.length}`);
-    console.log(`dislikes: ${sauce.usersDisliked.length}`);
-    Sauce.updateOne(
-      { _id: req.params.id },
-      {
-        likes: `${sauce.usersLiked.length}`,
-        dislikes: `${sauce.usersDisliked.length}`,
-      }
-    )
+  function updateCounts() {
+    Sauce.findOne({ _id: req.params.id }).then((sauce) => {
+      console.log(`likes: ${sauce.usersLiked.length}`);
+      console.log(`dislikes: ${sauce.usersDisliked.length}`);
+      Sauce.updateOne(
+        { _id: req.params.id },
+        {
+          likes: `${sauce.usersLiked.length}`,
+          dislikes: `${sauce.usersDisliked.length}`,
+        }
+      )
 
-      .then(() => console.log("success"))
-      .catch((error) => console.error(error));
-  });
+        .then(() => console.log("success"))
+        .catch((error) => console.error(error));
+    });
+  }
 };
 
 exports.getAllSauces = (req, res, next) => {
@@ -101,7 +105,14 @@ exports.modifySauce = (req, res, next) => {
 };
 
 exports.deleteSauce = (req, res, next) => {
-  Sauce.deleteOne({ _id: req.params.id })
-    .then(() => res.status(200).json({ message: "Sauce effacée" }))
-    .catch((error) => res.status(400).json({ error }));
+  Sauce.findOne({ _id: req.params.id })
+    .then((sauce) => {
+      const filename = sauce.imageUrl.split("/images/")[1];
+      fs.unlink(`images/${filename}`, () => {
+        Sauce.deleteOne({ _id: req.params.id })
+          .then(() => res.status(200).json({ message: "Sauce effacée" }))
+          .catch((error) => res.status(400).json({ error }));
+      });
+    })
+    .catch((error) => res.status(500).json({ error }));
 };
