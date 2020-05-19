@@ -14,7 +14,7 @@ exports.createSauce = (req, res, next) => {
     usersLiked: [],
     usersDisliked: [],
   });
-  const inputRegex = new RegExp("^[a-zA-Z0-9s]+$");
+  const inputRegex = /^[a-zA-Z0-9\s]+$/;
   if (
     inputRegex.test(sauce.name.trim()) &&
     inputRegex.test(sauce.manufacturer.trim()) &&
