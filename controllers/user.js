@@ -1,21 +1,32 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const isValidEmail = require("is-valid-email");
 const User = require("../models/user");
 
 exports.signup = (req, res, next) => {
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new User({
-        email: req.body.email,
-        password: hash,
-      });
-      user
-        .save()
-        .then(() => res.status(201).json({ message: "Utilisateur créé" }))
-        .catch((error) => res.status(400).json({ error }));
-    })
-    .catch((error) => res.status(500).json({ error }));
+  const passRegex = new RegExp(
+    "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+  );
+  if (
+    isValidEmail(req.body.email) &&
+    passRegex.test(req.body.password.trim())
+  ) {
+    bcrypt
+      .hash(req.body.password, 10)
+      .then((hash) => {
+        const user = new User({
+          email: req.body.email,
+          password: hash,
+        });
+        user
+          .save()
+          .then(() => res.status(201).json({ message: "Utilisateur créé" }))
+          .catch((error) => res.status(400).json({ error }));
+      })
+      .catch((error) => res.status(500).json({ error }));
+  } else {
+    res.status(203).json({ message: "Email ou mot de passe invalide" });
+  }
 };
 
 exports.login = (req, res, next) => {

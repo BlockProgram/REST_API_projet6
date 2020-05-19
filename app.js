@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const helmet = require("helmet");
 const mongoose = require("mongoose");
 const path = require("path");
 const userRoutes = require("./routes/user");
@@ -28,6 +29,8 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+app.use(helmet());
 
 app.use(bodyParser.json());
 
