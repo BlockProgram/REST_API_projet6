@@ -105,7 +105,7 @@ exports.modifySauce = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-  const inputRegex = new RegExp("^[a-zA-Z0-9s]+$");
+  const inputRegex = /^[a-zA-Z0-9\s]+$/;
   if (
     inputRegex.test(sauceObject.name.trim()) &&
     inputRegex.test(sauceObject.manufacturer.trim()) &&
