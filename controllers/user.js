@@ -4,29 +4,28 @@ const isValidEmail = require("is-valid-email");
 const User = require("../models/user");
 
 exports.signup = (req, res, next) => {
-  const passRegex = new RegExp(
-    "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
-  );
-  if (
-    isValidEmail(req.body.email) &&
-    passRegex.test(req.body.password.trim())
-  ) {
-    bcrypt
-      .hash(req.body.password, 10)
-      .then((hash) => {
-        const user = new User({
-          email: req.body.email,
-          password: hash,
-        });
-        user
-          .save()
-          .then(() => res.status(201).json({ message: "Utilisateur créé" }))
-          .catch((error) => res.status(400).json({ error }));
-      })
-      .catch((error) => res.status(500).json({ error }));
-  } else {
-    res.status(203).json({ message: "Email ou mot de passe invalide" });
+  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+  const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  if (!emailRegex.test(req.body.email.trim())) {
+    return res.status(203).json({ message: "Email  invalide" });
   }
+  if (!passRegex.test(req.body.password.trim())) {
+    return res.status(203).json({ message: "Mot de passe invalide" });
+  }
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => {
+      const user = new User({
+        email: req.body.email,
+        password: hash,
+      });
+      user
+        .save()
+        .then(() => res.status(201).json({ message: "Utilisateur créé" }))
+        .catch((error) => res.status(400).json({ error }));
+    })
+    .catch((error) => res.status(500).json({ error }));
 };
 
 exports.login = (req, res, next) => {
