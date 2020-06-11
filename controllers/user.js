@@ -1,17 +1,21 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const isValidEmail = require("is-valid-email");
 const User = require("../models/user");
 
 exports.signup = (req, res, next) => {
-  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
   const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
 
   if (!emailRegex.test(req.body.email.trim())) {
     return res.status(203).json({ message: "Email  invalide" });
   }
   if (!passRegex.test(req.body.password.trim())) {
-    return res.status(203).json({ message: "Mot de passe invalide" });
+    return res
+      .status(203)
+      .json({
+        message:
+          "Mot de passe invalide (8 caractères minimum: au moins 1 lettre majuscule, 1 lettre miniscule, 1 chiffre, 1 caractère spécial comme $ ou &",
+      });
   }
   bcrypt
     .hash(req.body.password, 10)
