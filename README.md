@@ -6,7 +6,7 @@ Backend infrastucture for a web app'. I had to build a REST API with Express & M
 
 This repo only contains the backend of the project. Here is the frontend part that you can put in the empty folder "frontend" included in this repo: https://github.com/OpenClassrooms-Student-Center/dwj-projet6
 
-Clone both repos and place them in a parent folder. From within the **backend AND frontend** folders, run `npm install`.
+Clone this repo. From within the **backend AND frontend** folders, run `npm install`.
 
 The frontend was built with Angular, run `ng serve` from within the frontend subfolder to launch the website on `localhost:4200`.
 
